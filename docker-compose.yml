@@ -1,0 +1,90 @@
+services:
+  db:
+    image: postgres:15
+    restart: always
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: lucidata
+      POSTGRES_USER: lucidata
+      POSTGRES_PASSWORD: password
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./database/migrations:/docker-entrypoint-initdb.d
+      - ./database/mtcars.csv:/data/mtcars.csv
+      - ./database/scripts/import_mtcars.sh:/docker-entrypoint-initdb.d/99_import_mtcars.sh
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U lucidata"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  api:
+    build: 
+      context: ./api
+    restart: always
+    ports:
+      - "8000:8000"
+    environment:
+      DATABASE_URL: postgres://lucidata:password@db:5432/lucidata
+      RUST_LOG: info
+    depends_on:
+      db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/api/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+
+  frontend:
+    build:
+      context: ./frontend
+    ports:
+      - "3000:3000"
+    environment:
+      - REACT_APP_API_URL=http://localhost:8000
+    volumes:
+      - ./frontend:/app
+    depends_on:
+      - api
+
+  llm_engine:
+    build:
+      context: ./llm_engine
+    ports:
+      - "8001:8001"
+    environment:
+      - API_URL=http://api:8000
+    depends_on:
+      - api
+    volumes:
+      - ./llm_engine:/app
+
+  query_runner:
+    build:
+      context: ./query_runner
+    environment:
+      - DATABASE_URL=postgres://lucidata:password@db:5432/lucidata
+      - API_URL=http://api:8000
+    depends_on:
+      db:
+        condition: service_healthy
+      api:
+        condition: service_started
+    volumes:
+      - ./query_runner:/app
+
+  response_formatter:
+    build:
+      context: ./response_formatter
+    ports:
+      - "8002:8002"
+    depends_on:
+      - query_runner
+    volumes:
+      - ./response_formatter:/app
+
+volumes:
+  postgres_data:
