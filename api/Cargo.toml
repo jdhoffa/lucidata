@@ -1,0 +1,15 @@
+[package]
+name = "lucidata-api"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+tokio = { version = "1", features = ["full"] }
+axum = "0.6"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+sqlx = { version = "0.6", features = ["runtime-tokio-native-tls", "postgres", "macros", "json"] }
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+dotenv = "0.15"
+tower-http = { version = "0.4", features = ["cors"] }

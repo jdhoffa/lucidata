@@ -1,0 +1,93 @@
+use axum::{
+    extract::{Path, State},
+    http::StatusCode,
+    response::Json,
+    Json as RequestJson,
+};
+use serde_json::{json, Value};
+use sqlx::{PgPool, Row, Column};
+
+use crate::models::{Car, QueryRequest, QueryResponse};
+
+// Health check endpoint
+pub async fn health_check() -> &'static str {
+    "OK"
+}
+
+// Get all cars
+pub async fn get_cars(State(pool): State<PgPool>) -> Result<Json<Vec<Car>>, (StatusCode, String)> {
+    let cars = sqlx::query_as::<_, Car>("SELECT * FROM cars")
+        .fetch_all(&pool)
+        .await
+        .map_err(|e| {
+            (
+                StatusCode::INTERNAL_SERVER_ERROR,
+                format!("Database error: {}", e),
+            )
+        })?;
+
+    Ok(Json(cars))
+}
+
+// Get a single car by ID
+pub async fn get_car_by_id(
+    Path(id): Path<i32>,
+    State(pool): State<PgPool>,
+) -> Result<Json<Car>, (StatusCode, String)> {
+    let car = sqlx::query_as::<_, Car>("SELECT * FROM cars WHERE id = $1")
+        .bind(id)
+        .fetch_one(&pool)
+        .await
+        .map_err(|e| match e {
+            sqlx::Error::RowNotFound => (StatusCode::NOT_FOUND, format!("Car with id {} not found", id)),
+            _ => (
+                StatusCode::INTERNAL_SERVER_ERROR,
+                format!("Database error: {}", e),
+            ),
+        })?;
+
+    Ok(Json(car))
+}
+
+// Execute a raw SQL query
+pub async fn query(
+    State(pool): State<PgPool>,
+    RequestJson(payload): RequestJson<QueryRequest>,
+) -> Result<Json<QueryResponse>, (StatusCode, String)> {
+    // Note: In a production environment, you'd want to validate and sanitize this query
+    // or use a query builder to prevent SQL injection
+    let query = payload.query;
+    
+    let rows = sqlx::query(&query)
+        .fetch_all(&pool)
+        .await
+        .map_err(|e| {
+            (
+                StatusCode::BAD_REQUEST,
+                format!("Query error: {}", e),
+            )
+        })?;
+
+    // Convert the rows to a JSON array
+    let result = rows
+        .iter()
+        .map(|row| {
+            let mut map = serde_json::Map::new();
+            for i in 0..row.len() {
+                let column_name = row.column(i).name();
+                let value: Option<Value> = row.try_get(i).ok();
+                if let Some(v) = value {
+                    map.insert(column_name.to_string(), v);
+                } else {
+                    map.insert(column_name.to_string(), Value::Null);
+                }
+            }
+            Value::Object(map)
+        })
+        .collect::<Vec<Value>>();
+
+    Ok(Json(QueryResponse {
+        result: json!(result),
+        executed_query: query,
+    }))
+}
