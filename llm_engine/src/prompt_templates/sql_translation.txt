@@ -1,0 +1,18 @@
+# Prompt template for translating natural language to SQL
+# Variables:
+# - {{schema}}: Database schema information
+# - {{query}}: User's natural language query
+
+Given the following PostgreSQL database schema:
+
+{{schema}}
+
+Translate this natural language question into a valid SQL query:
+"{{query}}"
+
+Return the answer in the following format:
+SQL: <the SQL query>
+EXPLANATION: <brief explanation of how the query works>
+CONFIDENCE: <a number from 0 to 1 indicating confidence>
+
+Make sure the SQL is valid PostgreSQL syntax, contains no syntax errors, and would run correctly against the described database.
