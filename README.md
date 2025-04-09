@@ -1,23 +1,23 @@
-# lucidata: Natural Language Data Exploration
+# lucidata: Democratized data access
 [![CI](https://github.com/jdhoffa/lucidata/actions/workflows/ci.yml/badge.svg)](https://github.com/jdhoffa/lucidata/actions/workflows/ci.yml)
 [![Build and Test System](https://github.com/jdhoffa/lucidata/actions/workflows/build.yml/badge.svg)](https://github.com/jdhoffa/lucidata/actions/workflows/build.yml)
 
-Lucidata is a secure, internal AI/LLM based tool designed to democratize data access. It translates natural language questions into SQL/API queries over structured datasets, returning clear, traceable answers and exports.
+Lucidata is an LLM based query tool designed to democratize data access. It translates natural language questions into SQL/API queries over structured datasets, returning clear, traceable answers and exports.
 
-## Features
+## Features (WIP)
 
-- **Natural Language Interface**: Ask questions in plain English
-- **Query Translation**: Automatic conversion to SQL/API queries
-- **Result Visualization**: Clear charts and tables 
-- **Export Options**: Download results in various formats (CSV, Excel, etc.)
-- **Query History**: Track and reuse previous queries
+- Natural Language Interface: Ask questions in plain English
+- Query Translation: Automatic conversion to SQL/API queries
+- Result Visualization: Clear tables and charts
+- Export Options: Download results in various formats (CSV, Excel, etc.)
+- Query Transparency: Track and export generated queries
 
 ## Getting Started
 
 ### Prerequisites
 
-- Docker and Docker Compose installed on your machine
-- Access credentials for supported datasets
+- `docker` installed
+- OpenAPI `API_KEY`
 
 ### Usage
 
@@ -32,11 +32,9 @@ Lucidata is a secure, internal AI/LLM based tool designed to democratize data ac
    docker compose up
    ```
 
-3. Access the web interface at http://localhost:3000
+3. Enter your natural language query in the input field and click "Submit"
 
-4. Enter your natural language query in the input field and click "Submit"
-
-5. Review the results and use the export options as needed
+4. Review the results and use the export options as needed
 
 ## System Architecture
 
@@ -75,14 +73,6 @@ graph TD
         E[Data Store<br>- Emissions Data<br>- Production Data<br>- Climate Scenarios <br>- etc.]
     end
 ```
-
-### Component Details
-
-- **Frontend Chat UI**: React-based interface or Teams plugin
-- **LLM Query Engine**: Handles prompt templates, guardrails, and schema-aware processing
-- **Query Runner Service**: Executes SQL queries (Postgres) and connects to APIs
-- **Data Store**: Contains data from WoodMac, Asset Impact, Climate Scenarios (IEA), and other sources
-- **Response Formatter**: Generates HTML tables, CSV exports, bundles original queries, and creates visualization widgets
 
 ## Example Queries
 
