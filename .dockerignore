@@ -1,0 +1,52 @@
+# Build outputs
+**/target/
+
+# Version control
+.git/
+.gitignore
+.github/
+
+# Development environments
+.vscode/
+.idea/
+.DS_Store
+*.sublime-*
+.vs/
+
+# Rust specific
+**/*.rs.bk
+**/Cargo.lock
+*.pdb
+
+# Docker
+Dockerfile*
+docker-compose*
+
+# Logs and databases
+**/*.log
+**/*.sqlite*
+**/*.db
+**/*.sql.gz
+**/*.dump
+database/data/
+logs/
+
+# Temp files
+**/tmp/
+**/temp/
+**/.tmp/
+**/*.tmp
+**/*.bak
+**/*.swp
+
+# Secret files
+**/*.pem
+**/*.key
+**/*secret*
+**/*credentials*
+**/config.json
+**/.env*
+
+# Documentation
+README.md
+docs/
