@@ -31,7 +31,6 @@ struct AppState {
 #[derive(Deserialize)]
 struct ExecuteQueryRequest {
     query: String,
-    params: Option<HashMap<String, Value>>,
 }
 
 // Response model
