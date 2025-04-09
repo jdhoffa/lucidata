@@ -17,7 +17,7 @@ Thumbs.db
 
 # Rust / Cargo
 **/target/
-api/Cargo.lock
+**/Cargo.lock
 **/*.rs.bk
 *.pdb
 

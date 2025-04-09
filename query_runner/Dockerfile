@@ -7,9 +7,8 @@ RUN apt-get update && \
     apt-get install -y pkg-config libssl-dev libpq-dev && \
     rm -rf /var/lib/apt/lists/*
 
-# Copy Cargo.toml and Cargo.lock first to leverage Docker cache
+# Copy Cargo.toml first to leverage Docker cache
 COPY Cargo.toml ./
-COPY Cargo.lock ./
 
 # Create a dummy main.rs to build dependencies
 RUN mkdir -p src && echo "fn main() {}" > src/main.rs
