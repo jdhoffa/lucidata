@@ -44,7 +44,7 @@ Below is a diagram showing the flow of information and expected user journey:
 
 ```mermaid
 graph TD
-    A[User Natural Language Input] --> B[Frontend Chat UI]
+    A[User's Natural Language Input] --> B[Frontend Chat UI]
     B --> |Request| C[LLM Query Engine]
     C --> |Structured Query| D[Query Runner Service]
     D --> |Data Request| E[Data Store]
@@ -72,7 +72,7 @@ graph TD
     end
 
     subgraph "Data Sources"
-        E[Data Store<br>- WoodMac<br>- Asset Impact<br>- Climate Scenarios <br>- Others]
+        E[Data Store<br>- Emissions Data<br>- Production Data<br>- Climate Scenarios <br>- etc.]
     end
 ```
 
