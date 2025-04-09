@@ -38,16 +38,6 @@ services:
       retries: 5
       start_period: 15s
 
-  frontend:
-    build:
-      context: ./frontend
-    ports:
-      - "3000:3000"
-    environment:
-      - REACT_APP_API_URL=http://localhost:8000
-    depends_on:
-      - api
-
   llm_engine:
     build:
       context: ./llm_engine
