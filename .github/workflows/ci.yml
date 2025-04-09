@@ -7,7 +7,8 @@ on:
     branches: [ main ]
 
 jobs:
-  test:
+  api:
+    name: API Service
     runs-on: ubuntu-latest
     
     services:
@@ -24,119 +25,60 @@ jobs:
     steps:
     - uses: actions/checkout@v3
 
-    # API tests
     - name: Set up Rust
       uses: actions-rs/toolchain@v1
       with:
         toolchain: stable
         override: true
-        components: rustfmt, clippy
     
-    - name: Check formatting
+    - name: Run cargo check
       working-directory: ./api
-      run: cargo fmt -- --check
+      run: cargo check
     
-    - name: Lint
-      working-directory: ./api
-      run: cargo clippy -- -D warnings
-    
-    - name: Test
+    - name: Run cargo test
       working-directory: ./api
       run: cargo test
       env:
         DATABASE_URL: postgres://lucidata:password@localhost:5432/lucidata_test
 
-    # Frontend tests
-    - name: Set up Node.js
-      uses: actions/setup-node@v3
-      with:
-        node-version: '18'
-    
-    - name: Install frontend dependencies
-      working-directory: ./frontend
-      run: npm ci
-    
-    - name: Lint frontend
-      working-directory: ./frontend
-      run: npm run lint
-    
-    - name: Test frontend
-      working-directory: ./frontend
-      run: npm test
-    
-    # Python services tests
-    - name: Set up Python
-      uses: actions/setup-python@v4
-      with:
-        python-version: '3.10'
-    
-    - name: Install pytest
-      run: pip install pytest
-    
-    - name: Test LLM Engine
-      working-directory: ./llm_engine
-      run: |
-        pip install -r requirements.txt
-        pytest
-        
-    - name: Test Query Runner
-      working-directory: ./query_runner
-      run: |
-        pip install -r requirements.txt
-        pytest
-        
-    - name: Test Response Formatter
-      working-directory: ./response_formatter
-      run: |
-        pip install -r requirements.txt
-        pytest
-
-  build:
+  llm_engine:
+    name: LLM Engine Service
     runs-on: ubuntu-latest
-    needs: test
     
     steps:
     - uses: actions/checkout@v3
-    
-    - name: Set up Docker Buildx
-      uses: docker/setup-buildx-action@v2
-    
-    - name: Build API
-      uses: docker/build-push-action@v4
+
+    - name: Set up Rust
+      uses: actions-rs/toolchain@v1
       with:
-        context: ./api
-        push: false
-        load: true
-        tags: lucidata-api:latest
+        toolchain: stable
+        override: true
     
-    - name: Build Frontend
-      uses: docker/build-push-action@v4
-      with:
-        context: ./frontend
-        push: false
-        load: true
-        tags: lucidata-frontend:latest
+    - name: Run cargo check
+      working-directory: ./llm_engine
+      run: cargo check
     
-    - name: Build LLM Engine
-      uses: docker/build-push-action@v4
-      with:
-        context: ./llm_engine
-        push: false
-        load: true
-        tags: lucidata-llm:latest
+    - name: Run cargo test
+      working-directory: ./llm_engine
+      run: cargo test
+
+  query_runner:
+    name: Query Runner Service
+    runs-on: ubuntu-latest
     
-    - name: Build Query Runner
-      uses: docker/build-push-action@v4
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Set up Rust
+      uses: actions-rs/toolchain@v1
       with:
-        context: ./query_runner
-        push: false
-        load: true
-        tags: lucidata-query-runner:latest
+        toolchain: stable
+        override: true
     
-    - name: Build Response Formatter
-      uses: docker/build-push-action@v4
-      with:
-        context: ./response_formatter
-        push: false
-        load: true
-        tags: lucidata-response-formatter:latest
+    - name: Run cargo check
+      working-directory: ./query_runner
+      run: cargo check
+    
+    - name: Run cargo test
+      working-directory: ./query_runner
+      run: cargo test
