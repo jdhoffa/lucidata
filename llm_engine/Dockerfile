@@ -1,16 +1,28 @@
-FROM python:3.10-slim
+FROM rust:1.83 AS builder
+
+WORKDIR /usr/src/llm_engine
+COPY . .
+
+# Build the application
+RUN cargo build --release
+
+# Runtime stage
+FROM debian:bullseye-slim
+
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends ca-certificates libssl-dev libpq-dev && \
+    rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 
-# Install dependencies
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+# Copy the binary from builder
+COPY --from=builder /usr/src/llm_engine/target/release/llm_engine /app/llm_engine
 
-# Copy application code
-COPY . .
+# Set environment variables
+ENV LLM_ENGINE_PORT=8001
 
-# Expose the port the app runs on
+# Expose the port
 EXPOSE 8001
 
 # Command to run the application
-CMD ["python", "-m", "src.main"]
+CMD ["/app/llm_engine"]
