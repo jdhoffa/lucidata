@@ -38,6 +38,44 @@ Lucidata is a secure, internal AI/LLM based tool designed to democratize data ac
 
 5. Review the results and use the export options as needed
 
+## System Architecture
+
+Below is a diagram showing the flow of information and expected user journey:
+
+```mermaid
+graph TD
+    A[User Natural Language Input] --> B[Frontend Chat UI]
+    B --> |Request| C[LLM Query Engine]
+    C --> |Structured Query| D[Query Runner Service]
+    D --> |Data Request| E[Data Store]
+    E --> |Raw Data| D
+    D --> |Processed Data| F[Response Formatter]
+    F --> |Formatted Results| B
+    B --> |Display Results| A
+
+    style A fill:#f9f,stroke:#333,stroke-width:2px
+    style B fill:#bbf,stroke:#333,stroke-width:2px
+    style C fill:#bfb,stroke:#333,stroke-width:2px
+    style D fill:#fbf,stroke:#333,stroke-width:2px
+    style E fill:#fbb,stroke:#333,stroke-width:2px
+    style F fill:#bff,stroke:#333,stroke-width:2px
+
+    subgraph "Frontend"
+        A
+        B[Frontend Chat UI<br>React or Teams plugin]
+    end
+
+    subgraph "Backend Services"
+        C[LLM Query Engine<br>- Prompt templates<br>- Guardrails<br>- Schema-aware]
+        D[Query Runner Service<br>- SQL engine (Postgres)<br>- API connector]
+        F[Response Formatter<br>- HTML table<br>- CSV export<br>- Original query<br>- JS widgets/plots]
+    end
+
+    subgraph "Data Sources"
+        E[Data Store<br>- WoodMac<br>- Asset Impact<br>- Climate Scenarios (IEA)<br>- Others]
+    end
+```
+
 ## Example Queries
 
 ```
