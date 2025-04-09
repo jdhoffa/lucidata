@@ -1,4 +1,4 @@
-FROM rust:1.83-slim-bookworm as builder
+FROM rust:1.83-slim-bookworm AS builder
 
 WORKDIR /app
 
@@ -17,11 +17,12 @@ RUN cargo build --release
 RUN rm -rf src
 
 # Copy the actual source code
-COPY . .
+COPY src src
 
-# Build the application with SQLx in offline mode
+# Build the application
 RUN cargo build --release
 
+# Runtime stage
 FROM debian:bookworm-slim
 
 WORKDIR /app

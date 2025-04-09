@@ -45,8 +45,6 @@ services:
       - "3000:3000"
     environment:
       - REACT_APP_API_URL=http://localhost:8000
-    volumes:
-      - ./frontend:/app
     depends_on:
       - api
 
@@ -59,8 +57,6 @@ services:
       - API_URL=http://api:8000
     depends_on:
       - api
-    volumes:
-      - ./llm_engine:/app
 
   query_runner:
     build:
@@ -73,18 +69,6 @@ services:
         condition: service_healthy
       api:
         condition: service_started
-    volumes:
-      - ./query_runner:/app
-
-  response_formatter:
-    build:
-      context: ./response_formatter
-    ports:
-      - "8002:8002"
-    depends_on:
-      - query_runner
-    volumes:
-      - ./response_formatter:/app
 
 volumes:
   postgres_data:
