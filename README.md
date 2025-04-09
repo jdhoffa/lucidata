@@ -61,29 +61,19 @@ graph TD
     style F fill:#bff,stroke:#333,stroke-width:2px
 
     subgraph "Frontend"
-        A[User Natural Language Input]
-        B[Frontend Chat UI<br>e.g. React or Teams plugin]
+        A
+        B[Frontend Chat UI<br>React or Teams plugin]
     end
 
     subgraph "Backend Services"
-        C[LLM Query Engine]
-        D[Query Runner Service]
-        F[Response Formatter]
+        C[LLM Query Engine<br>- Prompt templates<br>- Guardrails<br>- Schema-aware]
+        D[Query Runner Service<br>- SQL engine <br>- API connector]
+        F[Response Formatter<br>- HTML table<br>- CSV export<br>- Original query<br>- JS widgets/plots]
     end
 
     subgraph "Data Sources"
-        E[Data Store]
+        E[Data Store<br>- WoodMac<br>- Asset Impact<br>- Climate Scenarios <br>- Others]
     end
-
-    classDef default fill:#f9f,stroke:#333,stroke-width:1px
-    classDef component fill:#bbf,stroke:#333,stroke-width:1px
-    
-    %% Component details
-    class A default
-    class B component
-    
-    classDef hidden fill:none,stroke:none,color:none
-    style Descriptions fill:none,stroke:none
 ```
 
 ### Component Details
