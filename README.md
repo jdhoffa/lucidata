@@ -61,20 +61,46 @@ graph TD
     style F fill:#bff,stroke:#333,stroke-width:2px
 
     subgraph "Frontend"
-        A
-        B[Frontend Chat UI<br>React or Teams plugin]
+        A[User Natural Language Input]
+        B[Frontend Chat UI<br>e.g. React or Teams plugin]
     end
 
     subgraph "Backend Services"
-        C[LLM Query Engine<br>- Prompt templates<br>- Guardrails<br>- Schema-aware]
-        D[Query Runner Service<br>- SQL engine (Postgres)<br>- API connector]
-        F[Response Formatter<br>- HTML table<br>- CSV export<br>- Original query<br>- JS widgets/plots]
+        C[LLM Query Engine]
+        D[Query Runner Service]
+        F[Response Formatter]
     end
 
     subgraph "Data Sources"
-        E[Data Store<br>- WoodMac<br>- Asset Impact<br>- Climate Scenarios (IEA)<br>- Others]
+        E[Data Store]
     end
+
+    classDef default fill:#f9f,stroke:#333,stroke-width:1px
+    classDef component fill:#bbf,stroke:#333,stroke-width:1px
+    
+    %% Component details
+    class A default
+    class B component
+    
+    %% Descriptions placed separately for better compatibility
+    subgraph Descriptions
+        C1[LLM Query Engine:<br>- Prompt templates<br>- Guardrails<br>- Schema-aware]:::hidden
+        D1[Query Runner Service:<br>- SQL engine (Postgres)<br>- API connector]:::hidden
+        E1[Data Store:<br>- WoodMac<br>- Asset Impact<br>- Climate Scenarios (IEA)<br>- Others]:::hidden
+        F1[Response Formatter:<br>- HTML table<br>- CSV export<br>- Original query<br>- JS widgets/plots]:::hidden
+    end
+    
+    classDef hidden fill:none,stroke:none,color:none
+    style Descriptions fill:none,stroke:none
 ```
+
+### Component Details
+
+- **Frontend Chat UI**: React-based interface or Teams plugin
+- **LLM Query Engine**: Handles prompt templates, guardrails, and schema-aware processing
+- **Query Runner Service**: Executes SQL queries (Postgres) and connects to APIs
+- **Data Store**: Contains data from WoodMac, Asset Impact, Climate Scenarios (IEA), and other sources
+- **Response Formatter**: Generates HTML tables, CSV exports, bundles original queries, and creates visualization widgets
 
 ## Example Queries
 
