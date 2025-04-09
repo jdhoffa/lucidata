@@ -123,7 +123,7 @@ jobs:
         run: |
           # Give services some time to start up
           echo "Waiting for services to start..."
-          sleep 30
+          sleep 60
           
           # Check if API is healthy
           if curl -s http://localhost:8000/api/health > /dev/null; then
