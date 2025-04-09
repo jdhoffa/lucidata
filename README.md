@@ -1,4 +1,6 @@
 # lucidata: Natural Language Data Exploration
+[![CI](https://github.com/jdhoffa/lucidata/actions/workflows/ci.yml/badge.svg)](https://github.com/jdhoffa/lucidata/actions/workflows/ci.yml)
+[![Build and Test System](https://github.com/jdhoffa/lucidata/actions/workflows/build.yml/badge.svg)](https://github.com/jdhoffa/lucidata/actions/workflows/build.yml)
 
 Lucidata is a secure, internal AI/LLM based tool designed to democratize data access. It translates natural language questions into SQL/API queries over structured datasets, returning clear, traceable answers and exports.
 
