@@ -72,9 +72,9 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: Start services with docker-compose
+      - name: Start services with docker compose
         run: |
-          docker-compose up -d
+          docker compose up -d
         env:
           COMPOSE_DOCKER_CLI_BUILD: 1
           DOCKER_BUILDKIT: 1
@@ -90,7 +90,7 @@ jobs:
             echo "API is healthy"
           else
             echo "API health check failed"
-            docker-compose logs
+            docker compose logs
             exit 1
           fi
           
@@ -98,4 +98,4 @@ jobs:
 
       - name: Stop services
         if: always() # Ensures this step runs even if previous steps fail
-        run: docker-compose down
+        run: docker compose down
