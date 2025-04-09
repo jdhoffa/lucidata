@@ -1,22 +1,39 @@
-FROM rust:1.83 AS builder
+FROM rust:1.83-slim-bookworm AS builder
 
-WORKDIR /usr/src/query_runner
-COPY . .
+WORKDIR /app
+
+# Install dependencies
+RUN apt-get update && \
+    apt-get install -y pkg-config libssl-dev libpq-dev && \
+    rm -rf /var/lib/apt/lists/*
+
+# Copy Cargo.toml and Cargo.lock first to leverage Docker cache
+COPY Cargo.toml ./
+COPY Cargo.lock ./
+
+# Create a dummy main.rs to build dependencies
+RUN mkdir -p src && echo "fn main() {}" > src/main.rs
+RUN cargo build --release
+RUN rm -rf src
+
+# Copy the actual source code
+COPY src src
 
 # Build the application
 RUN cargo build --release
 
 # Runtime stage
-FROM debian:bullseye-slim
-
-RUN apt-get update && \
-    apt-get install -y --no-install-recommends ca-certificates libssl-dev libpq-dev && \
-    rm -rf /var/lib/apt/lists/*
+FROM debian:bookworm-slim
 
 WORKDIR /app
 
-# Copy the binary from builder
-COPY --from=builder /usr/src/query_runner/target/release/query_runner /app/query_runner
+# Install runtime dependencies
+RUN apt-get update && \
+    apt-get install -y libssl-dev libpq-dev ca-certificates curl && \
+    rm -rf /var/lib/apt/lists/*
+
+# Copy the binary from the builder stage
+COPY --from=builder /app/target/release/query_runner /app/query_runner
 
 # Command to run the application
 CMD ["/app/query_runner"]
