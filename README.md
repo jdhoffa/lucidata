@@ -82,14 +82,6 @@ graph TD
     class A default
     class B component
     
-    %% Descriptions placed separately for better compatibility
-    subgraph Descriptions
-        C1[LLM Query Engine:<br>- Prompt templates<br>- Guardrails<br>- Schema-aware]:::hidden
-        D1[Query Runner Service:<br>- SQL engine <br>- API connector]:::hidden
-        E1[Data Store:<br>- WoodMac<br>- Asset Impact<br>- Climate Scenarios <br>- Others]:::hidden
-        F1[Response Formatter:<br>- HTML table<br>- CSV export<br>- Original query<br>- JS widgets/plots]:::hidden
-    end
-    
     classDef hidden fill:none,stroke:none,color:none
     style Descriptions fill:none,stroke:none
 ```
