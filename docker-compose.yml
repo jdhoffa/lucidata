@@ -4,10 +4,12 @@ services:
     restart: always
     ports:
       - "5432:5432"
+    env_file:
+      - ./.env
     environment:
-      POSTGRES_DB: lucidata
-      POSTGRES_USER: lucidata
-      POSTGRES_PASSWORD: password
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./database/migrations:/docker-entrypoint-initdb.d
@@ -25,14 +27,16 @@ services:
     restart: always
     ports:
       - "8000:8000"
+    env_file:
+      - ./.env
     environment:
-      DATABASE_URL: postgres://lucidata:password@db:5432/lucidata
-      RUST_LOG: info
+      DATABASE_URL: ${DATABASE_URL}
+      RUST_LOG: ${RUST_LOG}
     depends_on:
       db:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8000/api/health"]
+      test: ["CMD", "curl", "-f", "http://0.0.0.0:8000/api/health"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -43,20 +47,25 @@ services:
       context: ./llm_engine
     ports:
       - "8001:8001"
+    env_file:
+      - ./.env
     environment:
-      - API_URL=http://api:8000
+      API_URL: ${API_URL}
+      LLM_API_KEY: ${LLM_API_KEY}
+      LLM_MODEL: ${LLM_MODEL}
     depends_on:
-      - api
+      api:
+        condition: service_healthy
 
   query_runner:
     build:
       context: ./query_runner
+    env_file:
+      - ./.env
     environment:
-      - DATABASE_URL=postgres://lucidata:password@db:5432/lucidata
-      - API_URL=http://api:8000
+      DATABASE_URL: ${DATABASE_URL}
+      API_URL: ${API_URL}
     depends_on:
-      db:
-        condition: service_healthy
       api:
         condition: service_started
 
