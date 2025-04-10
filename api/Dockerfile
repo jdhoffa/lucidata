@@ -39,6 +39,6 @@ RUN touch .env && \
     echo "DATABASE_URL=\${DATABASE_URL:-postgres://postgres:postgres@db:5432/pbtar}" > .env && \
     echo "RUST_LOG=\${RUST_LOG:-info}" >> .env
 
-EXPOSE 8080
+EXPOSE 8000
 
 CMD ["/app/lucidata-api"]
