@@ -14,8 +14,8 @@ use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
 
 #[tokio::main]
 async fn main() {
-    // Load environment variables
-    dotenv().ok();
+    // Load environment variables, don't require .env file in Docker
+    let _ = dotenv();
     
     // Initialize logging
     tracing_subscriber::registry()
@@ -29,11 +29,15 @@ async fn main() {
     let database_url = env::var("DATABASE_URL")
         .expect("DATABASE_URL must be set");
     
+    tracing::info!("Connecting to database at: {}", database_url.replace(|c| c != '@' && c != ':', "*"));
+    
     let pool = PgPoolOptions::new()
         .max_connections(5)
         .connect(&database_url)
         .await
         .expect("Failed to create pool");
+        
+    tracing::info!("Successfully connected to database");
     
     // CORS configuration
     let cors = CorsLayer::new()
