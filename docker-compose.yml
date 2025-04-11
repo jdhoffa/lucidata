@@ -43,6 +43,7 @@ services:
       start_period: 15s
 
   llm_engine:
+    restart: always
     build:
       context: ./llm_engine
     ports:
@@ -51,9 +52,14 @@ services:
       - ./.env
     environment:
       API_URL: ${API_URL}
+      DATABASE_URL: ${DATABASE_URL}
       LLM_API_KEY: ${LLM_API_KEY}
       LLM_MODEL: ${LLM_MODEL}
+      LLM_ENGINE_PORT: ${LLM_ENGINE_PORT}
+      RUST_LOG: debug
     depends_on:
+      db:
+        condition: service_healthy
       api:
         condition: service_healthy
 
