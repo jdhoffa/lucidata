@@ -48,6 +48,9 @@ services:
       context: ./llm_engine
     ports:
       - "8001:8001"
+    dns:
+      - 8.8.8.8
+      - 1.1.1.1
     env_file:
       - ./.env
     environment:
@@ -56,12 +59,20 @@ services:
       LLM_API_KEY: ${LLM_API_KEY}
       LLM_MODEL: ${LLM_MODEL}
       LLM_ENGINE_PORT: ${LLM_ENGINE_PORT}
-      RUST_LOG: debug
+      RUST_LOG: ${RUST_LOG}
     depends_on:
       db:
         condition: service_healthy
       api:
         condition: service_healthy
+    tty: true
+    stdin_open: true
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8001/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 5s
 
   query_runner:
     build:
@@ -77,3 +88,7 @@ services:
 
 volumes:
   postgres_data:
+
+networks:
+  default:
+    driver: bridge
