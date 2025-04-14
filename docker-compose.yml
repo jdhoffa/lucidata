@@ -4,10 +4,12 @@ services:
     restart: always
     ports:
       - "5432:5432"
+    env_file:
+      - ./.env
     environment:
-      POSTGRES_DB: lucidata
-      POSTGRES_USER: lucidata
-      POSTGRES_PASSWORD: password
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./database/migrations:/docker-entrypoint-initdb.d
@@ -24,41 +26,70 @@ services:
       context: ./api
     restart: always
     ports:
-      - "8000:8000"
+      - "${API_PORT}:${API_PORT}"
+    env_file:
+      - ./.env
     environment:
-      DATABASE_URL: postgres://lucidata:password@db:5432/lucidata
-      RUST_LOG: info
+      DATABASE_URL: ${DATABASE_URL}
+      API_PORT: ${API_PORT}
+      RUST_LOG: ${RUST_LOG}
     depends_on:
       db:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8000/api/health"]
+      test: ["CMD", "curl", "-f", "http://api:${API_PORT}/api/health"]
       interval: 10s
       timeout: 5s
       retries: 5
       start_period: 15s
 
   llm_engine:
+    restart: always
     build:
       context: ./llm_engine
     ports:
       - "8001:8001"
+    dns:
+      - 8.8.8.8
+      - 1.1.1.1
+    env_file:
+      - ./.env
     environment:
-      - API_URL=http://api:8000
+      API_URL: ${API_URL}
+      DATABASE_URL: ${DATABASE_URL}
+      LLM_API_KEY: ${LLM_API_KEY}
+      LLM_MODEL: ${LLM_MODEL}
+      LLM_ENGINE_PORT: ${LLM_ENGINE_PORT}
+      RUST_LOG: ${RUST_LOG}
     depends_on:
-      - api
+      db:
+        condition: service_healthy
+      api:
+        condition: service_healthy
+    tty: true
+    stdin_open: true
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8001/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 5s
 
   query_runner:
     build:
       context: ./query_runner
+    env_file:
+      - ./.env
     environment:
-      - DATABASE_URL=postgres://lucidata:password@db:5432/lucidata
-      - API_URL=http://api:8000
+      DATABASE_URL: ${DATABASE_URL}
+      API_URL: ${API_URL}
     depends_on:
-      db:
-        condition: service_healthy
       api:
         condition: service_started
 
 volumes:
   postgres_data:
+
+networks:
+  default:
+    driver: bridge

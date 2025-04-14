@@ -3,7 +3,7 @@ use anyhow::Result;
 use tracing::{info, error};
 use serde_json::{Value, json};
 use std::collections::HashMap;
-use postgres::{Client, NoTls};
+use tokio_postgres::NoTls;
 
 /// Retrieve the database schema from the PostgreSQL database
 /// Returns a dictionary representation of tables and columns
@@ -16,7 +16,7 @@ pub async fn get_database_schema() -> Result<HashMap<String, Value>> {
         }
     };
     
-    match get_schema_from_db(&db_url) {
+    match get_schema_from_db(&db_url).await {
         Ok(schema) => Ok(schema),
         Err(e) => {
             error!("Error fetching database schema: {}", e);
@@ -27,9 +27,17 @@ pub async fn get_database_schema() -> Result<HashMap<String, Value>> {
 }
 
 /// Query the database to get its schema
-fn get_schema_from_db(db_url: &str) -> Result<HashMap<String, Value>> {
+async fn get_schema_from_db(db_url: &str) -> Result<HashMap<String, Value>> {
     // Connect to the database
-    let mut client = Client::connect(db_url, NoTls)?;
+    let (client, connection) = tokio_postgres::connect(db_url, NoTls).await?;
+    
+    // The connection object performs the actual communication with the database,
+    // so spawn it off to run on its own
+    tokio::spawn(async move {
+        if let Err(e) = connection.await {
+            error!("connection error: {}", e);
+        }
+    });
     
     // Query to get all tables
     let tables_query = "
@@ -39,7 +47,7 @@ fn get_schema_from_db(db_url: &str) -> Result<HashMap<String, Value>> {
     
     let mut schema = HashMap::new();
     
-    for row in client.query(tables_query, &[])? {
+    for row in client.query(tables_query, &[]).await? {
         let table_name: String = row.get(0);
         
         // Query to get columns for this table
@@ -54,7 +62,7 @@ fn get_schema_from_db(db_url: &str) -> Result<HashMap<String, Value>> {
         
         let mut columns = Vec::new();
         
-        for col_row in client.query(&columns_query, &[])? {
+        for col_row in client.query(&columns_query, &[]).await? {
             let column_name: String = col_row.get(0);
             let data_type: String = col_row.get(1);
             let is_nullable: String = col_row.get(2);

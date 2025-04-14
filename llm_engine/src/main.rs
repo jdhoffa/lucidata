@@ -11,6 +11,7 @@ use axum::{
 use serde::{Deserialize, Serialize};
 use tower_http::cors::{CorsLayer, Any};
 use tracing::{info, error};
+use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
 use anyhow::Result;
 use std::sync::Arc;
 
@@ -19,11 +20,6 @@ mod db_schema;
 
 use llm_processor::process_natural_language_query;
 use db_schema::get_database_schema;
-
-// Initialize tracing
-fn setup_logging() {
-    tracing_subscriber::fmt::init();
-}
 
 #[derive(Clone)]
 struct AppState {
@@ -119,8 +115,13 @@ async fn main() {
     // Load environment variables
     dotenvy::dotenv().ok();
     
-    // Set up logging
-    setup_logging();
+    // Initialize logging
+    tracing_subscriber::registry()
+        .with(tracing_subscriber::EnvFilter::new(
+            std::env::var("RUST_LOG").unwrap_or_else(|_| "info".into()),
+        ))
+        .with(tracing_subscriber::fmt::layer())
+        .init();
     
     // Create app state
     let state = Arc::new(AppState {});
