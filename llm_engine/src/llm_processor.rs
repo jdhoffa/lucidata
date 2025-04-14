@@ -86,6 +86,10 @@ async fn call_llm_api(prompt: &str, model_name: &str) -> Result<String> {
                 content: "You are a helpful assistant that translates natural language questions into SQL queries for a PostgreSQL database.".to_string(),
             },
             OpenAIMessage {
+                role: "system".to_string(),
+                content: "Format SQL queries in a single line, without backticks, and with a semi-colon at the end.".to_string(),
+            },
+            OpenAIMessage {
                 role: "user".to_string(),
                 content: prompt.to_string(),
             },
