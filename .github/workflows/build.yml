@@ -131,6 +131,36 @@ jobs:
           LLM_ENGINE_PORT=${{ vars.LLM_ENGINE_PORT }}
           EOF
 
+      - name: Start database container only
+        run: |
+          docker compose up -d db
+          # Wait for database to be ready
+          echo "Waiting for database to be healthy..."
+          sleep 30
+
+      - name: Start API container with logs
+        run: |
+          # Start API container in detached mode
+          docker compose up -d api
+          # Show logs as it starts
+          docker compose logs api
+          # Check container status
+          docker ps -a
+
+      - name: Debug - Check environment variables
+        run: |
+          echo "=== Docker Compose Configuration ==="
+          # Use grep to filter out potential secrets
+          docker compose config | grep -v -E '(PASSWORD|SECRET|TOKEN|KEY|PASS)'
+          
+          echo "=== API Container Environment ==="
+          docker compose exec -T db env | grep -v -E '(PASSWORD|SECRET|TOKEN|KEY|PASS)' | sort
+
+      - name: Debug - Database container logs
+        run: |
+          echo "=== Database Container Logs ==="
+          docker compose logs db
+
       - name: Start services with docker compose
         run: docker compose up -d
         env:
