@@ -118,6 +118,19 @@ jobs:
         env:
           COMPOSE_DOCKER_CLI_BUILD: 0
           DOCKER_BUILDKIT: 1
+          RUST_LOG: ${{ vars.RUST_LOG }}
+          # Database variables
+          POSTGRES_DB: ${{ vars.POSTGRES_DB }}
+          POSTGRES_USER: ${{ vars.POSTGRES_USER }}
+          POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+          DATABASE_URL: postgres://${{ vars.POSTGRES_USER }}:${{ secrets.POSTGRES_PASSWORD }}@postgres:5432/${{ vars.POSTGRES_DB }}
+          # API Service variables
+          API_PORT: ${{ vars.API_PORT }}
+          API_URL: ${{ vars.API_URL }}
+          # LLM Engine variables
+          LLM_API_KEY: ${{ secrets.LLM_API_KEY }}
+          LLM_MODEL: ${{ vars.LLM_MODEL }}
+          LLM_ENGINE_PORT: ${{ vars.LLM_ENGINE_PORT }}
 
       - name: Wait for services to be healthy
         run: |
