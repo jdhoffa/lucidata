@@ -5,7 +5,7 @@ use axum::{
     Json as RequestJson,
 };
 use serde_json::{json, Value};
-use sqlx::{PgPool, Row, Column};
+use sqlx::{PgPool, Row, Column, TypeInfo};
 
 use crate::models::{Car, QueryRequest, QueryResponse};
 
@@ -75,12 +75,60 @@ pub async fn query(
             let mut map = serde_json::Map::new();
             for i in 0..row.len() {
                 let column_name = row.column(i).name();
-                let value: Option<Value> = row.try_get(i).ok();
-                if let Some(v) = value {
-                    map.insert(column_name.to_string(), v);
+                // Type info is used only in the fallback case
+                
+                // Handle different data types explicitly
+                let value = if let Ok(v) = row.try_get::<Option<i32>, _>(i) {
+                    match v {
+                        Some(val) => json!(val),
+                        None => Value::Null,
+                    }
+                } else if let Ok(v) = row.try_get::<Option<i64>, _>(i) {
+                    match v {
+                        Some(val) => json!(val),
+                        None => Value::Null,
+                    }
+                } else if let Ok(v) = row.try_get::<Option<f64>, _>(i) {
+                    match v {
+                        Some(val) => json!(val),
+                        None => Value::Null,
+                    }
+                } else if let Ok(v) = row.try_get::<Option<String>, _>(i) {
+                    match v {
+                        Some(val) => json!(val),
+                        None => Value::Null,
+                    }
+                } else if let Ok(v) = row.try_get::<Option<bool>, _>(i) {
+                    match v {
+                        Some(val) => json!(val),
+                        None => Value::Null,
+                    }
                 } else {
-                    map.insert(column_name.to_string(), Value::Null);
-                }
+                    // For any other types, try simpler approaches
+                    let type_info = row.column(i).type_info();
+                    let type_name = type_info.name();
+                    
+                    // Try to decode as JSON value first (works for many types)
+                    if let Ok(v) = row.try_get::<Option<serde_json::Value>, _>(i) {
+                        match v {
+                            Some(val) => val,
+                            None => Value::Null,
+                        }
+                    } else {
+                        // Try to get as a string (most types can be represented as strings)
+                        if let Ok(v) = row.try_get::<Option<String>, _>(i) {
+                            match v {
+                                Some(s) => json!(s),
+                                None => Value::Null,
+                            }
+                        } else {
+                            // If all else fails, return the type name as a fallback
+                            json!(format!("Value of type: {}", type_name))
+                        }
+                    }
+                };
+                
+                map.insert(column_name.to_string(), value);
             }
             Value::Object(map)
         })
