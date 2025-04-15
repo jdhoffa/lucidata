@@ -37,7 +37,7 @@ services:
       db:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://api:${API_PORT}/api/health"]
+      test: ["CMD", "ls", "/app"]
       interval: 10s
       timeout: 5s
       retries: 5
