@@ -160,12 +160,24 @@ jobs:
         run: |
           echo "=== Database Container Logs ==="
           docker compose logs db
+      
+      - name: Debug - Test database connection
+        run: |
+          # Use a temporary container to test connection
+          docker run --rm --network lucidata_default postgres:15 \
+            pg_isready -h db -U lucidata
+          echo "Connection result: $?"
 
       - name: Start services with docker compose
         run: docker compose up -d
         env:
           COMPOSE_DOCKER_CLI_BUILD: 0
           DOCKER_BUILDKIT: 1
+
+      - name: Debug - API container logs
+        run: |
+          echo "=== API Container Logs ==="
+          docker compose logs api
 
       - name: Wait for services to be healthy
         run: |
