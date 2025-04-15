@@ -126,7 +126,7 @@ jobs:
           POSTGRES_DB: ${{ vars.POSTGRES_DB }}
           POSTGRES_USER: ${{ vars.POSTGRES_USER }}
           POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
-          DATABASE_URL: postgres://${{ vars.POSTGRES_USER }}:${{ secrets.POSTGRES_PASSWORD }}@postgres:5432/${{ vars.POSTGRES_DB }}
+          DATABASE_URL: "postgres://${{ vars.POSTGRES_USER }}:${{ secrets.POSTGRES_PASSWORD }}@postgres:5432/${{ vars.POSTGRES_DB }}"
           # API Service variables
           API_PORT: ${{ vars.API_PORT }}
           API_URL: ${{ vars.API_URL }}
