@@ -129,6 +129,7 @@ jobs:
           LLM_API_KEY=${{ secrets.LLM_API_KEY }}
           LLM_MODEL=${{ vars.LLM_MODEL }}
           LLM_ENGINE_PORT=${{ vars.LLM_ENGINE_PORT }}
+          EOF
 
       - name: Start services with docker compose
         run: |
