@@ -115,7 +115,7 @@ jobs:
         run: |
           cat > .env << EOF
           # Rust config
-          RUST_LOG=${{ vars.RUST_LOG }}
+          RUST_LOG=DEBUG
           # Database variables
           POSTGRES_DB=${{ vars.POSTGRES_DB }}
           POSTGRES_USER=${{ vars.POSTGRES_USER }}
@@ -167,7 +167,12 @@ jobs:
           docker run --rm --network lucidata_default postgres:15 \
             pg_isready -h db -U lucidata
           echo "Connection result: $?"
-
+      - name: Start API service
+        run: docker compose up -d api
+          
+      - name: Check API logs immediately
+        run: docker compose logs api
+      
       - name: Start services with docker compose
         run: docker compose up -d
         env:
