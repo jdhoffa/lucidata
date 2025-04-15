@@ -111,6 +111,9 @@ jobs:
           docker load < /tmp/query-runner-image.tar
           docker images
 
+      - name: Create empty .env file
+        run: touch .env
+
       - name: Start services with docker compose
         run: |
           # Use the pre-built images instead of rebuilding
