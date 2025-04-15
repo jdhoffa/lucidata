@@ -132,19 +132,7 @@ jobs:
           EOF
 
       - name: Start services with docker compose
-        run: |
-          echo "=== Custom Variables ==="
-          echo "RUST_LOG: ${{ vars.RUST_LOG }}"
-          echo "POSTGRES_DB: ${{ vars.POSTGRES_DB }}"
-          echo "POSTGRES_USER: ${{ vars.POSTGRES_USER }}"
-          echo "DATABASE_URL: postgres://${{ vars.POSTGRES_USER }}:${{ secrets.POSTGRES_PASSWORD }}@postgres:5432/${{ vars.POSTGRES_DB }}"
-          echo "API_PORT: ${{ vars.API_PORT }}"
-          echo "API_HOST: ${{ vars.API_HOST }}"
-          echo "API_URL: ${{ vars.API_URL }}"
-          echo "LLM_MODEL: ${{ vars.LLM_MODEL }}"
-          echo "LLM_ENGINE_PORT: ${{ vars.LLM_ENGINE_PORT }}
-          # Use the pre-built images instead of rebuilding
-          docker compose up -d
+        run: docker compose up -d
         env:
           COMPOSE_DOCKER_CLI_BUILD: 0
           DOCKER_BUILDKIT: 1
