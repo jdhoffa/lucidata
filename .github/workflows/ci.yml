@@ -62,8 +62,8 @@ jobs:
       working-directory: ./llm_engine
       run: cargo test
 
-  query_runner:
-    name: Query Runner Service
+  query_router:
+    name: Query Router Service
     runs-on: ubuntu-latest
     
     steps:
@@ -76,9 +76,9 @@ jobs:
         override: true
     
     - name: Run cargo check
-      working-directory: ./query_runner
+      working-directory: ./query_router
       run: cargo check
     
     - name: Run cargo test
-      working-directory: ./query_runner
+      working-directory: ./query_router
       run: cargo test
