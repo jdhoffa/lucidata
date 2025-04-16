@@ -37,7 +37,7 @@ services:
       db:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "ls", "/app"]
+      test: ["CMD", "curl", "-f", "http://api:${API_PORT}/api/health"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -48,7 +48,7 @@ services:
     build:
       context: ./llm_engine
     ports:
-      - "8001:8001"
+      - "${LLM_ENGINE_PORT}:${LLM_ENGINE_PORT}"
     dns:
       - 8.8.8.8
       - 1.1.1.1
@@ -66,26 +66,33 @@ services:
         condition: service_healthy
       api:
         condition: service_healthy
-    tty: true
-    stdin_open: true
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8001/health"]
+      test: ["CMD", "curl", "-f", "http://localhost:${LLM_ENGINE_PORT}/health"]
       interval: 10s
       timeout: 5s
       retries: 3
       start_period: 5s
 
-  query_runner:
+  query_router:
     build:
-      context: ./query_runner
+      context: ./query_router
+    ports:
+      - "${QUERY_ROUTER_PORT}:${QUERY_ROUTER_PORT}"
     env_file:
       - ./.env
     environment:
       DATABASE_URL: ${DATABASE_URL}
       API_URL: ${API_URL}
+      QUERY_ROUTER_PORT: ${QUERY_ROUTER_PORT}
+      LLM_ENGINE_URL: ${LLM_ENGINE_URL}
+      RUST_LOG: ${RUST_LOG}
     depends_on:
+      db:
+        condition: service_healthy
       api:
-        condition: service_started
+        condition: service_healthy
+      llm_engine:
+        condition: service_healthy
 
 volumes:
   postgres_data:
