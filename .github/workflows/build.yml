@@ -129,6 +129,9 @@ jobs:
           LLM_API_KEY=${{ secrets.LLM_API_KEY }}
           LLM_MODEL=${{ vars.LLM_MODEL }}
           LLM_ENGINE_PORT=${{ vars.LLM_ENGINE_PORT }}
+          LLM_ENGINE_URL=${{ vars.LLM_ENGINE_URL }}
+          # Query Router variables
+          QUERY_ROUTER_PORT=${{ vars.QUERY_ROUTER_PORT }}
           EOF
 
       - name: Start database container only
