@@ -111,13 +111,86 @@ jobs:
           docker load < /tmp/query-router-image.tar
           docker images
 
-      - name: Start services with docker compose
+      - name: Create .env file
         run: |
-          # Use the pre-built images instead of rebuilding
-          docker compose up -d
+          cat > .env << EOF
+          # Rust config
+          RUST_LOG=DEBUG
+          # Database variables
+          POSTGRES_DB=${{ vars.POSTGRES_DB }}
+          POSTGRES_USER=${{ vars.POSTGRES_USER }}
+          POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}
+          DATABASE_URL="postgres://${{ vars.POSTGRES_USER }}:${{ secrets.POSTGRES_PASSWORD }}@db:5432/${{ vars.POSTGRES_DB }}"
+          # API Service variables
+          API_PORT=${{ vars.API_PORT }}
+          API_HOST=${{ vars.API_HOST }}
+          API_URL=${{ vars.API_URL }}
+          # LLM Engine variables
+          LLM_API_KEY=${{ secrets.LLM_API_KEY }}
+          LLM_MODEL=${{ vars.LLM_MODEL }}
+          LLM_ENGINE_PORT=${{ vars.LLM_ENGINE_PORT }}
+          LLM_ENGINE_URL=${{ vars.LLM_ENGINE_URL }}
+          # Query Router variables
+          QUERY_ROUTER_PORT=${{ vars.QUERY_ROUTER_PORT }}
+          EOF
+      - name: Validate .env file
+        run: |
+          echo "Validating .env file..."
+          cat .env
+
+      - name: Start database container only
+        run: |
+          docker compose up -d db
+          # Wait for database to be ready
+          echo "Waiting for database to be healthy..."
+          sleep 30
+
+      - name: Start API container with logs
+        run: |
+          # Start API container in detached mode
+          docker compose up -d api
+          # Show logs as it starts
+          docker compose logs api
+          # Check container status
+          docker ps -a
+
+      - name: Debug - Check environment variables
+        run: |
+          echo "=== Docker Compose Configuration ==="
+          # Use grep to filter out potential secrets
+          docker compose config | grep -v -E '(PASSWORD|SECRET|TOKEN|KEY|PASS)'
+          
+          echo "=== API Container Environment ==="
+          docker compose exec -T db env | grep -v -E '(PASSWORD|SECRET|TOKEN|KEY|PASS)' | sort
+
+      - name: Debug - Database container logs
+        run: |
+          echo "=== Database Container Logs ==="
+          docker compose logs db
+      
+      - name: Debug - Test database connection
+        run: |
+          # Use a temporary container to test connection
+          docker run --rm --network lucidata_default postgres:15 \
+            pg_isready -h db -U lucidata
+          echo "Connection result: $?"
+      - name: Start API service
+        run: docker compose up -d api
+          
+      - name: Check API logs immediately
+        run: docker compose logs api
+      
+      - name: Start services with docker compose
+        run: docker compose up -d
         env:
           COMPOSE_DOCKER_CLI_BUILD: 0
           DOCKER_BUILDKIT: 1
+
+      - name: Debug - API container logs
+        run: |
+          echo "=== API Container Logs ==="
+          docker compose logs api
+          docker inspect lucidata-api-1
 
       - name: Wait for services to be healthy
         run: |
