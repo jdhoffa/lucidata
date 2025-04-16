@@ -35,9 +35,6 @@ RUN apt-get update && \
 # Copy the binary from the builder stage
 COPY --from=builder /app/target/release/llm_engine /app/llm_engine
 
-# Set environment variables
-ENV LLM_ENGINE_PORT=8001
-
 # Expose the port
 EXPOSE 8001
 

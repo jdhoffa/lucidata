@@ -34,5 +34,7 @@ RUN apt-get update && \
 # Copy the binary from the builder stage
 COPY --from=builder /app/target/release/query_router /app/query_router
 
+EXPOSE 8002
+
 # Command to run the application
 CMD ["/app/query_router"]
