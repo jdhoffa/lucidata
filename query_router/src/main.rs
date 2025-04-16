@@ -147,7 +147,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         },
         Err(err) => {
             if err.to_string().contains("Address already in use") {
-                tracing::error!("Port {} is already in use. Try setting a different port with the PORT environment variable.", port);
+                tracing::error!("Port {} is already in use. Try setting a different port with the QUERY_ROUTER_PORT environment variable.", port);
                 std::process::exit(1);
             } else {
                 return Err(err.into());
