@@ -135,7 +135,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let port = env::var("QUERY_ROUTER_PORT")
         .ok()
         .and_then(|p| p.parse::<u16>().ok())
-        .unwrap_or(8003);
+        .unwrap_or(8002);
         
     let addr = SocketAddr::from(([0, 0, 0, 0], port));
     tracing::info!("Query Router server starting on {}", addr);
