@@ -32,7 +32,9 @@ RUN apt-get update && \
     rm -rf /var/lib/apt/lists/*
 
 # Copy the binary from the builder stage
-COPY --from=builder /app/target/release/query_runner /app/query_runner
+COPY --from=builder /app/target/release/query_router /app/query_router
+
+EXPOSE 8002
 
 # Command to run the application
-CMD ["/app/query_runner"]
+CMD ["/app/query_router"]

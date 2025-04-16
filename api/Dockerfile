@@ -34,11 +34,6 @@ RUN apt-get update && \
 # Copy the binary from the builder stage
 COPY --from=builder /app/target/release/lucidata-api /app/lucidata-api
 
-# Create a .env file only if environment variables aren't provided
-RUN touch .env && \
-    echo "DATABASE_URL=\${DATABASE_URL:-postgres://postgres:postgres@db:5432/pbtar}" > .env && \
-    echo "RUST_LOG=\${RUST_LOG:-info}" >> .env
-
 EXPOSE 8000
 
 CMD ["/app/lucidata-api"]

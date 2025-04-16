@@ -4,37 +4,62 @@
 
 Lucidata is an LLM based query tool designed to democratize data access. It translates natural language questions into SQL/API queries over structured datasets, returning clear, traceable answers and exports.
 
-## Features (WIP)
+## Features
 
 - Natural Language Interface: Ask questions in plain English
-- Query Translation: Automatic conversion to SQL/API queries
-- Result Visualization: Clear tables and charts
-- Export Options: Download results in various formats (CSV, Excel, etc.)
-- Query Transparency: Track and export generated queries
+- Query Translation: Automatic conversion to SQL queries
+- Query Transparency: Track and export generated queries, explanations, and model confidence
+
+### Road-Map
+
+- Support for Generic WebAPI queries
+- Result Visualization
 
 ## Getting Started
 
 ### Prerequisites
 
 - `docker` installed
-- OpenAPI `API_KEY`
+- An OpenAPI `API_KEY`
 
 ### Usage
 
 1. Clone the repository
    ```bash
-   git clone https://github.com/jdhoffa/lucidata.git
+   gh repo clone jdhoffa/lucidata
    cd lucidata
    ```
 
-2. Start the application with Docker Compose
+2. Build and start the application with `docker compose`:
    ```bash
+   docker compose build # it can take a while to compile, be patient :-)
    docker compose up
    ```
 
-3. Enter your natural language query in the input field and click "Submit"
+3. Send your query to the query_router endpoint, and check out the results!
+``` bash
+curl -X POST "http://localhost:8002/translate-and-execute" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "natural_query": "Show me the cars with the best power-to-weight ratio, sorted from highest to lowest"
+  }'
+```
 
-4. Review the results and use the export options as needed
+4. (Optional) Pipe the output to the `jq` CLI:
+``` bash
+curl -X POST "http://localhost:8002/translate-and-execute" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "natural_query": "Show me the cars with the best power-to-weight ratio, sorted from highest to lowest"
+  }' | jq
+
+# you can also select a specific tag
+curl -X POST "http://localhost:8002/translate-and-execute" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "natural_query": "Show me the cars with the best power-to-weight ratio, sorted from highest to lowest"
+  }' | jq '.results'
+```
 
 ## System Architecture
 
@@ -77,9 +102,18 @@ graph TD
 ## Example Queries
 
 ```
-"What is the projected energy mix in 2030 according to IEA's Net Zero scenario?"
+# Query #1 tests mathematical operations (division of hp/wt)
+"Show me the cars with the best power-to-weight ratio, sorted from highest to lowest."
 
-"How does natural gas production in the US compare to China over the next decade in WoodMac's base case?"
+# Query #2 tests sorting and multi-column selection
+"Compare fuel efficiency (MPG) and horsepower for all cars, sorted by MPG."
 
-"Show me the top 5 countries by renewable energy growth in the next 5 years."
+# Query #3 tests aggregation functions with grouping
+"What's the average horsepower and MPG for automatic vs manual transmission cars?"
+
+# Query #4 tests more complex aggregation and grouping
+"Show me the relationship between number of cylinders and fuel efficiency with average MPG by cylinder count"
+
+# Query #5 tests limiting results and specific column selection
+"Find the top 5 cars with the highest horsepower and their quarter-mile time (qsec)"
 ```
