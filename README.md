@@ -38,7 +38,7 @@ Lucidata is an LLM based query tool designed to democratize data access. It tran
 
 3. Send your query to the query_router endpoint, and check out the results!
 ``` bash
-curl -X POST "http://localhost:8003/translate-and-execute" \
+curl -X POST "http://localhost:8002/translate-and-execute" \
   -H "Content-Type: application/json" \
   -d '{
     "natural_query": "Show me the cars with the best power-to-weight ratio, sorted from highest to lowest"
@@ -47,14 +47,14 @@ curl -X POST "http://localhost:8003/translate-and-execute" \
 
 4. (Optional) Pipe the output to the `jq` CLI:
 ``` bash
-curl -X POST "http://localhost:8003/translate-and-execute" \
+curl -X POST "http://localhost:8002/translate-and-execute" \
   -H "Content-Type: application/json" \
   -d '{
     "natural_query": "Show me the cars with the best power-to-weight ratio, sorted from highest to lowest"
   }' | jq
 
 # you can also select a specific tag
-curl -X POST "http://localhost:8003/translate-and-execute" \
+curl -X POST "http://localhost:8002/translate-and-execute" \
   -H "Content-Type: application/json" \
   -d '{
     "natural_query": "Show me the cars with the best power-to-weight ratio, sorted from highest to lowest"
