@@ -133,6 +133,10 @@ jobs:
           # Query Router variables
           QUERY_ROUTER_PORT=${{ vars.QUERY_ROUTER_PORT }}
           EOF
+      - name: Validate .env file
+        run: |
+          echo "Validating .env file..."
+          cat .env
 
       - name: Start database container only
         run: |
@@ -186,6 +190,7 @@ jobs:
         run: |
           echo "=== API Container Logs ==="
           docker compose logs api
+          docker inspect lucidata-api-1
 
       - name: Wait for services to be healthy
         run: |
