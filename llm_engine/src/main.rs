@@ -268,12 +268,16 @@ fn parse_visualization_response(response: &str) -> (String, String, f64) {
     
     // First, check if the response contains a code block with HTML
     if let Some(html_block_start) = response.find("```html") {
-        if let Some(html_block_end) = response[html_block_start..].find("```") {
-            html_code = response[html_block_start + 7..html_block_start + html_block_end].trim().to_string();
+        // Find the end of the code block (next ```)
+        if let Some(html_block_end) = response[html_block_start + 6..].find("```") {
+            // Extract HTML content (skip the ```html and end ```)
+            let block_start_pos = html_block_start + "```html".len();
+            let block_end_pos = html_block_start + 6 + html_block_end;
+            html_code = response[block_start_pos..block_end_pos].trim().to_string();
             
             // Look for explanation after the HTML block
-            if let Some(explanation_text) = response[html_block_start + html_block_end + 3..].trim().to_string().into() {
-                explanation = explanation_text;
+            if block_end_pos + 3 < response.len() {
+                explanation = response[block_end_pos + 3..].trim().to_string();
             }
         }
     }
