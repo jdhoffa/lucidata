@@ -148,14 +148,9 @@ async fn generate_visualization(
         \
         STYLING GUIDELINES:\
         - Use Plotly.js to create the chart\
-        - Use a white background with light gray gridlines\
-        - Use sans-serif font (Helvetica or Arial)\
         - Use 14px font for axis labels, 18px for titles\
         - Use consistent margins and padding\
-        - Use a clean, minimal color palette:\
-          - Blue for the main data line\
-          - For multiple series, use distinguishable but soft tones (blue, green, orange)\
-          - Avoid harsh colors like bright red or neon\
+        - Use a neobrutalist style\
         - Include axis titles with units (if known)\
         - Rotate x-axis labels if they are dates or long strings\
         - Use tight layout with `autosize: true` and `responsive: true`\
