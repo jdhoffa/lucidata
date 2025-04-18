@@ -22,6 +22,15 @@ struct TranslateAndExecuteRequest {
     model: String,
 }
 
+// Request model for visualization generation
+#[derive(Debug, Deserialize)]
+struct VisualizationRequest {
+    natural_query: String,
+    results: Value,
+    #[serde(default = "default_model")]
+    model: String,
+}
+
 fn default_model() -> String {
     "gpt-3.5-turbo".to_string()
 }
@@ -43,10 +52,26 @@ struct ResponseMetadata {
     total_time_ms: u64,
 }
 
+// Response model for visualization generation
+#[derive(Debug, Serialize)]
+struct VisualizationResponse {
+    html_code: String,
+    explanation: String,
+    metadata: ResponseMetadata,
+}
+
 // LLM Engine response structure
 #[derive(Debug, Deserialize)]
 struct LlmResponse {
     sql_query: String,
+    explanation: String,
+    confidence: f64,
+}
+
+// LLM Engine visualization response structure
+#[derive(Debug, Deserialize)]
+struct LlmVisualizationResponse {
+    html_code: String,
     explanation: String,
     confidence: f64,
 }
@@ -128,6 +153,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let app = Router::new()
         .route("/health", get(health_check))
         .route("/translate-and-execute", post(translate_and_execute))
+        .route("/visualize", post(generate_visualization))
         .with_state(state)
         .layer(middleware);
 
@@ -261,4 +287,65 @@ async fn execute_sql_query(state: &AppState, sql_query: &str) -> Result<Value, A
     }
     
     Ok(result)
+}
+
+// Endpoint for generating visualizations from natural language and data
+async fn generate_visualization(
+    State(state): State<Arc<AppState>>,
+    Json(request): Json<VisualizationRequest>,
+) -> Result<Json<VisualizationResponse>, AppError> {
+    let start_time = Instant::now();
+    
+    // Call LLM engine to generate visualization
+    let llm_start_time = Instant::now();
+    let llm_response = call_llm_visualization_engine(&state, &request).await?;
+    let llm_processing_time = llm_start_time.elapsed().as_millis() as u64;
+    
+    // Build the response
+    let total_time = start_time.elapsed().as_millis() as u64;
+    
+    let response = VisualizationResponse {
+        html_code: llm_response.html_code,
+        explanation: llm_response.explanation,
+        metadata: ResponseMetadata {
+            confidence: llm_response.confidence,
+            execution_time_ms: 0, // No SQL execution in this flow
+            llm_processing_time_ms: llm_processing_time,
+            total_time_ms: total_time,
+        },
+    };
+    
+    Ok(Json(response))
+}
+
+// Call LLM engine to generate visualization HTML/JS
+async fn call_llm_visualization_engine(
+    state: &AppState, 
+    request: &VisualizationRequest
+) -> Result<LlmVisualizationResponse, AppError> {
+    let url = format!("{}/generate", state.llm_engine_url);
+    
+    let llm_request = json!({
+        "query": request.natural_query,
+        "results": request.results,
+        "model": request.model
+    });
+    
+    let response = state.client
+        .post(&url)
+        .json(&llm_request)
+        .send()
+        .await
+        .map_err(AppError::LlmEngineError)?;
+    
+    if !response.status().is_success() {
+        let status = response.status();
+        let error_text = response.text().await.unwrap_or_else(|_| "Unknown error".to_string());
+        return Err(AppError::LlmResponseError(format!("LLM engine returned error ({}): {}", status, error_text)));
+    }
+    
+    let llm_response = response.json::<LlmVisualizationResponse>().await
+        .map_err(|e| AppError::LlmResponseError(format!("Failed to parse LLM visualization response: {}", e)))?;
+    
+    Ok(llm_response)
 }
