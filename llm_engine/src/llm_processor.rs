@@ -46,7 +46,7 @@ pub async fn process_natural_language_query(
     // Get model name from parameters or environment
     let model_name = model
         .or_else(|| env::var("LLM_MODEL").ok())
-        .unwrap_or_else(|| "gpt-4".to_string());
+        .unwrap_or_else(|| "gpt-3.5-turbo".to_string());
     
     // Generate prompt with query and schema context
     let prompt = generate_prompt(&query, db_schema.as_ref());

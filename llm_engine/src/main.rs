@@ -135,7 +135,7 @@ async fn generate_visualization(
     info!("Generating visualization for query: {}", request.query);
     
     // Get the model name from the request or use a default
-    let model = request.model.unwrap_or_else(|| "gpt-4".to_string());
+    let model = request.model.unwrap_or_else(|| "gpt-3.5-turbo".to_string());
     
     // Format the results data for the prompt
     let results_json = serde_json::to_string_pretty(&request.results)
